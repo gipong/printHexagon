@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="semantic.min.css"/>
+    <style>
+        #HexCanvas {
+            display: block;
+            border: 5px solid #777;
+        }
+        .ui.grid {
+            position: absolute;
+            margin: 20px auto;
+            top: 0;
+            left: 0;
+        }
+        .ui.left.action.input, .ui.button{
+            width: 100%;
+        }
+        .page {
+            visibility: hidden;
+        }
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        @media print {
+            div.ui.grid {
+                display: none;
+            }
+            .page {
+                position: absolute;
+                visibility: visible;
+                top: 0;
+                left: 0;
+            }
+        }
+    </style>
+    <title>printHexagon</title>
+</head>
+<body>
+    <canvas id="HexCanvasPrint" class="page" width="793.70078740155" height="1122.519685039335"></canvas>
+    <div class="ui grid">
+        <div class="four wide column">
+            <h1 class="ui header">PrintHexagon</h1>
+            <form class="ui form" id="config">
+                <div class="field">
+                    <label>Size Length (Default 2 cm)</label>
+                    <input type="text" id="target" placeholder="Unit : cm">
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" id="color" checked>
+                        <label>Randomize Hexagon Color</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <button class="ui green button" id="reset"">
+                        <i class="refresh icon"></i>
+                        Reset
+                    </button>
+                </div>
+                <div class="field">
+                    <br/>
+                    <button class="ui primary button">
+                        <i class="print icon"></i>
+                        Print Hexagon on A4
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="twelve wide column">
+            <canvas id="HexCanvas" width="793.70078740155" height="1122.519685039335"></canvas>
+        </div>
+    </div>
+</body>
+<script src="hexagon.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="semantic.min.js"></script>
+<script>
+    var pixelsize = 37.79527559055;
+    var widthA4 = 793.70078740155;
+    var heightA4 = 1122.519685039335;
+    var target =2;
+    var hexagonGrid = new HexagonGrid("HexCanvas", target*pixelsize);
+    var hexagonGridPrint = new HexagonGrid("HexCanvasPrint", target*pixelsize);
+    hexagonGrid.drawHexGrid(heightA4/(target*pixelsize), widthA4/(target*pixelsize), -target*pixelsize, -target*pixelsize, false, hexagonGridPrint, true);
+
+    function regenerate(target_) {
+        var hexagonGrid = new HexagonGrid("HexCanvas", target_*pixelsize);
+        var hexagonGridPrint = new HexagonGrid("HexCanvasPrint", target_*pixelsize);
+        hexagonGrid.drawHexGrid(heightA4/(target_*pixelsize), widthA4/(target_*pixelsize), -target_*pixelsize, -target_*pixelsize, false, hexagonGridPrint, document.getElementById("color").checked);
+    }
+
+    $("#config").submit(function(e) {
+        e.preventDefault();
+    });
+    $(".ui.primary.button").click(function() {window.print();});
+    $("#reset").click(function() {
+        var target_ = Number(document.getElementById("target").value);
+        if(typeof target_ === 'number' && target_ > 0) {
+            regenerate(target_);
+        } else {
+            alert("Size Length should be greater than zero")
+        }
+    });
+</script>
+</html>

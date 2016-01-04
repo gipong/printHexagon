@@ -50,8 +50,20 @@
                 </div>
                 <div class="field">
                     <div class="ui checkbox">
-                        <input type="checkbox" id="color" checked>
+                        <input type="checkbox" class="panel" id="color" checked>
                         <label>Randomize Hexagon Color</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" class="panel" id="rule">
+                        <label>White-Yellow-Blue</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" class="panel" id="spec">
+                        <label>Assign color</label><br><input type="text" id="assignColor" placeholder="ex: #FFF">
                     </div>
                 </div>
                 <div class="field">
@@ -84,24 +96,32 @@
     var target =2;
     var hexagonGrid = new HexagonGrid("HexCanvas", target*pixelsize);
     var hexagonGridPrint = new HexagonGrid("HexCanvasPrint", target*pixelsize);
-    hexagonGrid.drawHexGrid(heightA4/(target*pixelsize), widthA4/(target*pixelsize), -target*pixelsize, -target*pixelsize, false, hexagonGridPrint, true);
+    hexagonGrid.drawHexGrid(heightA4/(target*pixelsize), widthA4/(target*pixelsize), -target*pixelsize, -target*pixelsize, false, hexagonGridPrint, 'color');
 
     function regenerate(target_) {
         var hexagonGrid = new HexagonGrid("HexCanvas", target_*pixelsize);
         var hexagonGridPrint = new HexagonGrid("HexCanvasPrint", target_*pixelsize);
-        hexagonGrid.drawHexGrid(heightA4/(target_*pixelsize), widthA4/(target_*pixelsize), -target_*pixelsize, -target_*pixelsize, false, hexagonGridPrint, document.getElementById("color").checked);
+        hexagonGrid.drawHexGrid(heightA4/(target_*pixelsize), widthA4/(target_*pixelsize), -target_*pixelsize, -target_*pixelsize, false, hexagonGridPrint, $($(".panel:checked")[0]).attr('id'));
+
     }
 
     $("#config").submit(function(e) {
         e.preventDefault();
     });
+    $(".panel").on("change", function() {
+        $(".panel").not(this).prop("checked", false);
+    });
     $(".ui.primary.button").click(function() {window.print();});
     $("#reset").click(function() {
         var target_ = Number(document.getElementById("target").value);
-        if(typeof target_ === 'number' && target_ > 0) {
-            regenerate(target_);
+        if($($(".panel:checked")[0]).attr('id') == 'spec' && document.getElementById('assignColor').value == '') {
+          alert("Please assign color");
         } else {
-            alert("Size Length should be greater than zero")
+          if(typeof target_ === 'number' && target_ > 0) {
+              regenerate(target_);
+          } else {
+              alert("Size Length should be greater than zero");
+          }
         }
     });
 </script>

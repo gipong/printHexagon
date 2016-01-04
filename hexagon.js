@@ -12,14 +12,14 @@ function HexagonGrid(canvasId, radius) {
 
     this.canvasOriginX = 0;
     this.canvasOriginY = 0;
-    
+
     //this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
 };
 
 HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDebug, HexagonGridPrint, colorSetting) {
     this.canvasOriginX = originX;
     this.canvasOriginY = originY;
-    
+
     var currentHexX;
     var currentHexY;
     var debugText = "";
@@ -42,11 +42,22 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
                 debugText = col + "," + row;
             }
 
-            if(colorSetting) {
+            switch (colorSetting) {
+              case 'color':
                 var color = colorSet[Math.floor((Math.random()*5))];
-            } else {
+                break;
+              case 'rule': // #FFF, #FF0, #00F
+                var pattern = ['#00F', '#FFF', '#FF0'],
+                    pattern_first = ['#FFF', '#FF0', '#00F'];
+                (col % 2 == 0) ? color = pattern_first[(row%3)] : color = pattern[(row%3)];
+                break;
+              case 'spec':
+                color = document.getElementById('assignColor').value;
+                break;
+              default:
                 var color = '#FFF';
             }
+
             this.drawHex(currentHexX, currentHexY, color, debugText);
             HexagonGridPrint.drawHex(currentHexX, currentHexY, color, debugText);
         }
@@ -95,7 +106,7 @@ HexagonGrid.prototype.getRelativeCanvasOffset = function() {
             x += layoutElement.offsetLeft;
             y += layoutElement.offsetTop;
         } while (layoutElement = layoutElement.offsetParent);
-        
+
         return { x: x, y: y };
     }
 }
@@ -116,11 +127,11 @@ HexagonGrid.prototype.getSelectedTile = function(mouseX, mouseY) {
             : Math.floor(((mouseY + (this.height * 0.5)) / this.height)) - 1);
 
 
-    //Test if on left side of frame            
+    //Test if on left side of frame
     if (mouseX > (column * this.side) && mouseX < (column * this.side) + this.width - this.side) {
 
 
-        //Now test which of the two triangles we are in 
+        //Now test which of the two triangles we are in
         //Top left triangle points
         var p1 = new Object();
         p1.x = column * this.side;
@@ -201,5 +212,5 @@ HexagonGrid.prototype.clickEvent = function (e) {
         var drawx = (tile.column * this.side) + this.canvasOriginX;
 
         this.drawHex(drawx, drawy - 6, "rgba(110,110,70,0.3)", "");
-    } 
+    }
 };

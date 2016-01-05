@@ -1,18 +1,18 @@
 # printHexagon
-Allow dynamically changing the side length and fill a page with the hexagons on A4. It's also provide an option to colorize hexagons with random color.
+Allow dynamically changing the side length and fill a page with the hexagons or grid on A4. It's also provide an option to colorize hexagons or grid with different color.
 
 # Demo
 http://gipong.github.io/printHexagon/
 
 ![index](demo/index.png)
 
-Reset size length to 1 cm with no color
+Reset size length to 2 cm with three color
 
-![Big5](demo/nocolor.png)
+![Big5](demo/setColor.png)
 
 Print Hexagon on A4
 
-![Shift_JIS](demo/printA4.png)
+![Shift_JIS](demo/printA4_2.png)
 
 # License
 The MIT License (MIT)

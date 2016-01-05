@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="semantic.min.css"/>
+    <link rel="stylesheet" href="css/semantic.min.css"/>
+    <link rel="stylesheet" media="screen" href="css/colorpicker.css" />
     <style>
         #HexCanvas {
             display: block;
             border: 5px solid #777;
+        }
+        #forSquare {
+          display: none;
         }
         .ui.grid {
             position: absolute;
@@ -43,12 +47,33 @@
     <div class="ui grid">
         <div class="four wide column">
             <h1 class="ui header">PrintHexagon</h1>
+            <div class="ui horizontal divider">
+              Type
+            </div>
+            <form class="ui form" id="type">
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" class="polygontype" id="hexagon" checked>
+                        <label>Hexagon</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" class="polygontype" id="square">
+                        <label>Square</label>
+                    </div>
+                </div>
+            </form>
+            <div class="ui horizontal divider">
+              Setting
+            </div>
             <form class="ui form" id="config">
                 <div class="field">
                     <label>Size Length (Default 2 cm)</label>
                     <input type="text" id="target" placeholder="Unit : cm">
                 </div>
-                <div class="field">
+
+                <!-- <div class="field">
                     <div class="ui checkbox">
                         <input type="checkbox" class="panel" id="color" checked>
                         <label>Randomize Hexagon Color</label>
@@ -65,9 +90,26 @@
                         <input type="checkbox" class="panel" id="spec">
                         <label>Assign color</label><br><input type="text" id="assignColor" placeholder="ex: #FFF">
                     </div>
+                </div> -->
+                <div class="field">
+                    <label>Color 1</label>
+                    <input type="text" class="color" id="color1" placeholder="ex: #FFF">
                 </div>
                 <div class="field">
-                    <button class="ui green button" id="reset"">
+                    <label>Color 2</label>
+                    <input type="text" class="color" id="color2" placeholder="ex: #FFF">
+                </div>
+                <div class="field">
+                    <label>Color 3</label>
+                    <input type="text" class="color" id="color3" placeholder="ex: #FFF">
+                </div>
+                <div class="field" id="forSquare">
+                    <label>Color 4</label>
+                    <input type="text" class="color" id="color4" placeholder="ex: #FFF">
+                </div>
+
+                <div class="field">
+                    <button class="ui green button" id="reset">
                         <i class="refresh icon"></i>
                         Reset
                     </button>
@@ -86,9 +128,10 @@
         </div>
     </div>
 </body>
-<script src="hexagon.js"></script>
+<script src="js/hexagon.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="semantic.min.js"></script>
+<script src="js/semantic.min.js"></script>
+<script src="js/colorpicker.js"></script>
 <script>
     var pixelsize = 37.79527559055;
     var widthA4 = 793.70078740155;
@@ -101,8 +144,13 @@
     function regenerate(target_) {
         var hexagonGrid = new HexagonGrid("HexCanvas", target_*pixelsize);
         var hexagonGridPrint = new HexagonGrid("HexCanvasPrint", target_*pixelsize);
-        hexagonGrid.drawHexGrid(heightA4/(target_*pixelsize), widthA4/(target_*pixelsize), -target_*pixelsize, -target_*pixelsize, false, hexagonGridPrint, $($(".panel:checked")[0]).attr('id'));
+        hexagonGrid.drawHexGrid(heightA4/(target_*pixelsize), widthA4/(target_*pixelsize), -target_*pixelsize, -target_*pixelsize, false, hexagonGridPrint, 'custom');
+    }
 
+    function regenerate_square(target_) {
+        var hexagonGrid = new HexagonGrid("HexCanvas", target_*pixelsize, true);
+        var hexagonGridPrint = new HexagonGrid("HexCanvasPrint", target_*pixelsize, true);
+        hexagonGrid.drawHexGrid(heightA4/(target_*pixelsize), widthA4/(target_*pixelsize), 0, 0, false, hexagonGridPrint, 'custom');
     }
 
     $("#config").submit(function(e) {
@@ -111,18 +159,48 @@
     $(".panel").on("change", function() {
         $(".panel").not(this).prop("checked", false);
     });
+    $(".polygontype").on("change", function() {
+        $(".polygontype").not(this).prop("checked", false);
+        if($(this).attr('id') == 'hexagon') {
+          $("#forSquare").slideUp(400);
+          document.getElementById("color4").value = '';
+        } else {
+          $("#forSquare").slideDown(400);
+        }
+    });
     $(".ui.primary.button").click(function() {window.print();});
     $("#reset").click(function() {
         var target_ = Number(document.getElementById("target").value);
-        if($($(".panel:checked")[0]).attr('id') == 'spec' && document.getElementById('assignColor').value == '') {
-          alert("Please assign color");
-        } else {
-          if(typeof target_ === 'number' && target_ > 0) {
-              regenerate(target_);
+        // if($($(".panel:checked")[0]).attr('id') == 'spec' && document.getElementById('assignColor').value == '') {
+        //   alert("Please assign color");
+        // } else {
+        if(typeof target_ === 'number' && target_ > 0) {
+          if($($('.polygontype:checked')[0]).attr('id') == 'hexagon') {
+            regenerate(target_);
           } else {
-              alert("Size Length should be greater than zero");
+            regenerate_square(target_);
           }
+
+        } else {
+            alert("Size Length should be greater than zero");
         }
+        // }
     });
+    $(".color").each(function() {
+      var colorSetting = $(this);
+      colorSetting.ColorPicker({
+        onShow: function (colpkr) {
+      		$(colpkr).fadeIn(500);
+      		return false;
+      	},
+      	onHide: function (colpkr) {
+      		$(colpkr).fadeOut(500);
+      		return false;
+      	},
+        onChange: function (hsb, hex, rgb) {
+          document.getElementById(colorSetting.attr('id')).value = '#'+hex;
+      	}
+      });
+    })
 </script>
 </html>

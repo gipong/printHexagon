@@ -1,11 +1,18 @@
 // Hex math defined here: http://blog.ruslans.com/2011/02/hexagonal-grid-math.html
 
-function HexagonGrid(canvasId, radius) {
+function HexagonGrid(canvasId, radius, square) {
     this.radius = radius;
+    this.square = square;
 
-    this.height = Math.sqrt(3) * radius;
-    this.width = 2 * radius;
-    this.side = (3 / 2) * radius;
+    if (square) {
+      this.height = radius;
+      this.width = radius;
+      this.side = radius;
+    } else {
+      this.height = Math.sqrt(3) * radius;
+      this.width = 2 * radius;
+      this.side = (3 / 2) * radius;
+    }
 
     this.canvas = document.getElementById(canvasId);
     this.context = this.canvas.getContext('2d');
@@ -35,7 +42,7 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
                 currentHexY = (row * this.height) + originY;
             } else {
                 currentHexX = col * this.side + originX;
-                currentHexY = (row * this.height) + originY + (this.height * 0.5);
+                this.square ? currentHexY = (row * this.height) + originY : currentHexY = (row * this.height) + originY + (this.height * 0.5);
             }
 
             if (isDebug) {
@@ -53,6 +60,59 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
                 break;
               case 'spec':
                 color = document.getElementById('assignColor').value;
+                break;
+              case 'custom':
+                if($($('.polygontype:checked')[0]).attr('id') == 'hexagon') {
+                  var temp_pattern = [];
+                  for (var i = 1; i < 5; i++) {
+                    if(document.getElementById('color'+i).value != '') {
+                      temp_pattern.push(document.getElementById('color'+i).value);
+                    }
+                  }
+
+                  switch (temp_pattern.length) {
+                    case 1:
+                      color = temp_pattern[0];
+                      break;
+                    case 3:
+                      var pattern = [document.getElementById('color1').value, document.getElementById('color2').value, document.getElementById('color3').value],
+                          pattern_first = [document.getElementById('color2').value, document.getElementById('color3').value, document.getElementById('color1').value];
+                      (col % 2 == 0) ? color = pattern_first[(row%3)] : color = pattern[(row%3)];
+                      break;
+                    default:
+                      alert("Color Setting Error!");
+                      return false;
+                  }
+
+                } else {
+                  var temp_pattern = [];
+                  for (var i = 1; i < 5; i++) {
+                    if(document.getElementById('color'+i).value != '') {
+                      temp_pattern.push(document.getElementById('color'+i).value);
+                    }
+                  }
+
+                  switch (temp_pattern.length) {
+                    case 1:
+                      color = temp_pattern[0];
+                      break;
+                    case 2:
+                      var pattern = [document.getElementById('color1').value, document.getElementById('color2').value],
+                          pattern_first = [document.getElementById('color2').value, document.getElementById('color1').value];
+                      (col % 2 == 0) ? color = pattern_first[(row%2)] : color = pattern[(row%2)];
+                      break;
+                    case 4:
+                      var pattern = [document.getElementById('color1').value, document.getElementById('color2').value],
+                          pattern_first = [document.getElementById('color3').value, document.getElementById('color4').value];
+                      (col % 2 == 0) ? color = pattern_first[(row%2)] : color = pattern[(row%2)];
+                      break;
+                    default:
+                      alert("Color Setting Error!");
+                      return false;
+                  }
+
+                }
+
                 break;
               default:
                 var color = '#FFF';
